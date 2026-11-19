@@ -1,215 +1,143 @@
-<!doctype html>
+<!DOCTYPE html>
 <html lang="ja">
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
-<meta name="apple-mobile-web-app-capable" content="yes">
-<meta name="apple-mobile-web-app-title" content="マンガハブ">
 <title>マンガハブ</title>
-<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns=%27http://www.w3.org/2000/svg%27 viewBox=%270 0 100 100%27%3E%3Ctext y=%27.9em%27 font-size=%2790%27%3E📚%3C/text%3E%3C/svg%3E">
-<script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-app-compat.js"></script>
-<script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-database-compat.js"></script>
 <style>
-:root{--bg:#f1f3f6;--card:#fff;--ink:#14161a;--sub:#5d6470;--ac:#2f4bff;--hl:#ffd400;--on-ac:#fff;--dot:rgba(20,22,26,.13);color-scheme:light;box-sizing:border-box;padding-top:env(safe-area-inset-top,0px)}
-@media(prefers-color-scheme:dark){:root:not([data-theme="light"]){--bg:#101216;--card:#1a1d23;--ink:#f1f3f6;--sub:#9aa2af;--ac:#7f93ff;--hl:#ffd400;--on-ac:#101216;--dot:rgba(241,243,246,.14);color-scheme:dark}}
-:root[data-theme="dark"]{--bg:#101216;--card:#1a1d23;--ink:#f1f3f6;--sub:#9aa2af;--ac:#7f93ff;--hl:#ffd400;--on-ac:#101216;--dot:rgba(241,243,246,.14);color-scheme:dark}
-*{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
-body{margin:0;background:var(--bg);color:var(--ink);font:16px/1.5 "Hiragino Sans","Hiragino Kaku Gothic ProN","Noto Sans JP",system-ui,sans-serif;padding-bottom:calc(84px + env(safe-area-inset-bottom,0px))}
-main{max-width:560px;margin:0 auto;padding:0 16px}
-.top{margin:0 -16px 18px;padding:22px 16px 18px;background:radial-gradient(var(--dot) 1.4px,transparent 1.6px) 0 0/9px 9px;border-bottom:3px solid var(--ink)}
-.top h1{margin:0;font-size:30px;font-weight:900;letter-spacing:.02em;line-height:1.2}
-.top p{margin:4px 0 0;color:var(--sub);font-weight:700;font-size:14px}
-h2{font-size:15px;margin:22px 0 10px;font-weight:800}
-.card{background:var(--card);border:2px solid var(--ink);border-radius:6px;box-shadow:3px 3px 0 var(--ink);padding:12px 14px;margin:0 3px 14px 0;display:flex;gap:12px;align-items:center}
-.card.done{opacity:.5;box-shadow:none}
-.card .t{flex:1;min-width:0}
-.card .t b{display:block;font-size:17px;line-height:1.35;word-break:break-word}
-.card .t small{color:var(--sub);font-size:13px;font-weight:600}
-.btn{appearance:none;font:inherit;font-weight:800;font-size:15px;border:2px solid var(--ink);border-radius:6px;background:var(--card);color:var(--ink);padding:9px 14px;text-decoration:none;display:inline-flex;align-items:center;justify-content:center;min-height:44px;cursor:pointer}
-.btn.p{background:var(--ac);color:var(--on-ac)}
-.btn.y{background:var(--hl);color:#14161a}
-.btn.d{color:#d0342c}
-.btn:active{transform:translate(2px,2px)}
-.btn.w{width:100%;margin-bottom:10px}
-.tag{display:inline-block;background:var(--hl);color:#14161a;font-weight:800;font-size:12px;padding:1px 7px;border-radius:3px;margin-right:6px}
-.empty{border:2px dashed var(--sub);border-radius:6px;padding:22px 16px;color:var(--sub);text-align:center;font-weight:600}
-nav{position:fixed;left:0;right:0;bottom:0;display:flex;background:var(--card);border-top:3px solid var(--ink);padding:6px 8px calc(8px + env(safe-area-inset-bottom,0px));z-index:5}
-nav button{flex:1;appearance:none;border:0;background:none;color:var(--sub);font:inherit;font-weight:800;font-size:13px;padding:8px 0;min-height:48px;cursor:pointer}
-nav button.on{color:var(--ink);box-shadow:inset 0 -4px 0 var(--ac)}
-.fab{position:fixed;right:16px;bottom:calc(80px + env(safe-area-inset-bottom,0px));z-index:4;width:56px;height:56px;border-radius:50%;font-size:30px;line-height:1;box-shadow:3px 3px 0 var(--ink);padding:0}
-#sheet{position:fixed;inset:0;background:rgba(0,0,0,.5);z-index:10;display:none;align-items:flex-end;justify-content:center}
-#sheet.open{display:flex}
-#sheet .in{background:var(--bg);width:100%;max-width:560px;max-height:92%;overflow:auto;border-top:3px solid var(--ink);border-radius:14px 14px 0 0;padding:18px 16px calc(22px + env(safe-area-inset-bottom,0px))}
-#sheet h3{margin:0 0 12px;font-size:20px;font-weight:900;word-break:break-word}
-label{display:block;font-weight:800;font-size:14px;margin:14px 0 6px}
-input[type=text],input[type=url],select,textarea{width:100%;font:inherit;font-size:16px;color:var(--ink);background:var(--card);border:2px solid var(--ink);border-radius:6px;padding:10px 12px;min-height:46px}
-.chips{display:flex;gap:6px;flex-wrap:wrap}
-.chip{appearance:none;font:inherit;font-weight:800;width:42px;height:42px;border-radius:50%;border:2px solid var(--ink);background:var(--card);color:var(--ink);cursor:pointer}
-.chip.on{background:var(--ac);color:var(--on-ac)}
-.row{display:flex;gap:10px}.row>*{flex:1}
-.chk{display:flex;align-items:center;gap:10px;font-weight:700;margin:0;padding:10px 0;border-bottom:1px solid var(--dot)}
-.chk input{width:22px;height:22px}
-textarea{min-height:90px;font-size:13px}
-.note{color:var(--sub);font-size:13px;margin:6px 0}
+:root{--bg:#f2f4f7;--card:#fff;--tx:#101828;--sub:#667085;--ac:#3b4cca;--acx:#fff;--bd:#d8dde6;--hl:#ffd23f;--hlx:#101828;color-scheme:light;
+box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]){--bg:#0f1420;--card:#1a2030;--tx:#eef1f6;--sub:#9aa4b5;--ac:#8c98ff;--acx:#0f1420;--bd:#2c3448;--hl:#ffd23f;--hlx:#101828;color-scheme:dark}}
+:root[data-theme="dark"]{--bg:#0f1420;--card:#1a2030;--tx:#eef1f6;--sub:#9aa4b5;--ac:#8c98ff;--acx:#0f1420;--bd:#2c3448;color-scheme:dark}
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--tx);font:15px/1.6 "Hiragino Sans","Noto Sans JP","Yu Gothic",system-ui,sans-serif}
+main{max-width:640px;margin:0 auto;padding:14px 14px 80px}
+h1{font-size:22px;margin:4px 0 10px;letter-spacing:.02em}
+h2{font-size:16px;margin:22px 0 8px}
+.week{display:grid;grid-template-columns:repeat(7,1fr);gap:4px;margin-bottom:6px}
+.day{border:1px solid var(--bd);background:var(--card);border-radius:8px;text-align:center;padding:6px 0;font-size:12px;color:var(--sub)}
+.day b{display:block;font-size:16px;color:var(--tx)}
+.day.today{background:var(--hl);color:var(--hlx);border-color:var(--hl)}.day.today b{color:var(--hlx)}
+nav{position:sticky;top:env(safe-area-inset-top,0px);display:flex;gap:6px;background:var(--bg);padding:8px 0;z-index:5}
+nav button{flex:1;padding:9px 0;border:1px solid var(--bd);background:var(--card);color:var(--tx);border-radius:8px;font:inherit;font-weight:600;cursor:pointer}
+nav button.on{background:var(--ac);color:var(--acx);border-color:var(--ac)}
+.c{background:var(--card);border:1px solid var(--bd);border-radius:10px;padding:10px 12px;margin-bottom:8px}
+.t{font-weight:700}.tg{color:var(--sub);font-size:12px}
+.row{display:flex;flex-wrap:wrap;gap:6px;align-items:center;margin-top:6px}
+.b{border:1px solid var(--bd);background:transparent;color:var(--tx);border-radius:6px;padding:4px 9px;font:inherit;font-size:13px;cursor:pointer;text-decoration:none}
+.b.p{background:var(--ac);color:var(--acx);border-color:var(--ac)}
+.b.on{background:var(--hl);color:var(--hlx);border-color:var(--hl)}
+.lk{font-size:12px;padding:3px 8px;color:var(--ac);border-color:var(--bd)}
+input,select{font:inherit;font-size:14px;padding:5px 8px;border:1px solid var(--bd);border-radius:6px;background:var(--bg);color:var(--tx);max-width:100%}
+input[type=number]{width:72px}
+.chips{display:flex;flex-wrap:wrap;gap:6px;margin:6px 0 10px}
+.em{color:var(--sub);padding:10px 2px}
+.why{font-size:12px;color:var(--ac)}
+button:focus-visible,a:focus-visible,input:focus-visible,select:focus-visible{outline:2px solid var(--ac);outline-offset:2px}
 </style>
 </head>
 <body>
-<main id="main"></main>
-<button class="btn p fab" id="fab" data-a="new" aria-label="作品を追加">＋</button>
-<nav>
-<button data-a="tab" data-id="today">今日</button>
-<button data-a="tab" data-id="list">マイ作品</button>
-<button data-a="tab" data-id="set">設定</button>
-</nav>
-<div id="sheet"><div class="in" id="sheetIn"></div></div>
+<main>
+<h1>マンガハブ</h1>
+<div class="week" id="week"></div>
+<nav id="nav"><button data-tab="home">ホーム</button><button data-tab="mine">マイ作品</button><button data-tab="find">発見</button></nav>
+<div id="v"></div>
+</main>
 <script>
-const FIREBASE_CONFIG={databaseURL:"https://manga-hub-142af-default-rtdb.asia-southeast1.firebasedatabase.app",projectId:"manga-hub-142af"};
-const APPS=[["jp","ジャンプ+","https://shonenjumpplus.com/"],["mp","マガポケ","https://pocket.shonenmagazine.com/"],["mo","マンガワン","https://manga-one.com/"],["su","サンデーうぇぶり","https://websunday.net/"],["pc","ピッコマ","https://piccoma.com/web"],["ln","LINEマンガ","https://manga.line.me/"],["zb","ゼブラック","https://zebrack-comic.shueisha.co.jp/"],["yj","ヤンジャン！","https://youngjump.jp/"],["ot","その他",""]];
-const SHOPS=[["kindle","Kindle","https://www.amazon.co.jp/s?i=digital-text&k="],["kobo","楽天Kobo","https://kobo.com/jp/ja/search?query="],["bw","BookWalker","https://bookwalker.jp/search/?word="],["cmoa","コミックシーモア","https://www.cmoa.jp/search/result/?header_word="],["rb","楽天ブックス（紙）","https://books.rakuten.co.jp/search?sitem="],["az","Amazon（紙）","https://www.amazon.co.jp/s?i=stripbooks&k="]];
-const CATALOG=[["ONE PIECE","jp",[1],"週刊少年ジャンプ連載"],["HUNTER×HUNTER","jp",[1],"週刊少年ジャンプ連載・休載が多い"],["キングダム","yj",[4],"週刊ヤングジャンプ連載"]];
-const DN="日月火水木金土",KEY="mangahub:v1";
-let S={works:[],shops:["kindle","bw"]},tab="today";
-try{const r=localStorage.getItem(KEY);if(r)S=Object.assign(S,JSON.parse(r))}catch(e){}
-S.del=S.del||{};S.sU=S.sU||0;S.works.forEach(w=>{if(!w.u)w.u=Date.now()});
-const lsSave=()=>{try{localStorage.setItem(KEY,JSON.stringify(S))}catch(e){}};
-let ref=null,st="local",pt=null;
-const pack=()=>({works:S.works,shops:S.shops,del:S.del,sU:S.sU});
-const save=()=>{lsSave();push()};
-function push(){if(!ref)return;clearTimeout(pt);pt=setTimeout(()=>{ref.set(JSON.parse(JSON.stringify(pack()))).then(()=>{st="ok";badge()}).catch(()=>{st="err";badge()})},400)}
-const canon=o=>JSON.stringify({works:Object.values(o.works||{}).map(w=>({id:w.id,title:w.title||"",app:w.app||"ot",days:Object.values(w.days||[]).map(Number).sort(),url:w.url||"",note:w.note||"",read:w.read||"",u:w.u||0})).sort((x,y)=>x.id<y.id?-1:1),shops:Object.values(o.shops||[]).sort(),del:o.del||{},sU:o.sU||0});
-const fixW=w=>Object.assign({},w,{days:Object.values(w.days||[]).map(Number)});
-function merge(r){
-  const del=Object.assign({},S.del,r.del||{}),m=new Map();
-  [...S.works,...Object.values(r.works||{}).map(fixW)].forEach(w=>{const o=m.get(w.id);if(!o||(w.u||0)>(o.u||0))m.set(w.id,w)});
-  const works=[...m.values()].filter(w=>!(del[w.id]>(w.u||0)));
-  const useR=(r.sU||0)>S.sU;
-  const n={works,shops:useR?Object.values(r.shops||[]):S.shops,del,sU:Math.max(S.sU,r.sU||0)};
-  const ch=canon(n)!==canon(pack());
-  Object.assign(S,n);return ch;
+const P=[["ONE PIECE","少年 冒険 バトル"],["キングダム","青年 歴史 戦記"],["HUNTER×HUNTER","少年 冒険 バトル"],["SPY×FAMILY","コメディ 家族 アクション"],["呪術廻戦","少年 バトル ダーク"],["葬送のフリーレン","ファンタジー 冒険 しっとり"],["ダンダダン","少年 バトル コメディ"],["チェンソーマン","少年 バトル ダーク"],["僕のヒーローアカデミア","少年 バトル 学園"],["鬼滅の刃","少年 バトル 歴史"],["薬屋のひとりごと","ミステリー 歴史 コメディ"],["ブルーロック","スポーツ バトル"],["【推しの子】","ミステリー 芸能 ダーク"],["怪獣8号","少年 バトル SF"],["アオのハコ","スポーツ 恋愛 学園"],["ワンパンマン","コメディ バトル"],["ゴールデンカムイ","青年 歴史 冒険 バトル"],["ヴィンランド・サガ","青年 歴史 戦記"],["ダンジョン飯","ファンタジー 冒険 コメディ"],["宇宙兄弟","青年 SF 人間ドラマ"],["ハイキュー!!","スポーツ 少年 学園"],["SAKAMOTO DAYS","少年 アクション コメディ"],["魔入りました!入間くん","ファンタジー コメディ 学園"],["よつばと!","日常 コメディ ほのぼの"]];
+const WD=["日","月","火","水","木","金","土"];
+const K="mangahub.v2";
+let S={mine:[],wish:[]},tab="home",flt="",sw="";
+try{const r=localStorage.getItem(K);if(r)S=JSON.parse(r)}catch(e){}
+if(!S.mine.length&&!localStorage.getItem?.call(localStorage,K+".seeded")){["キングダム","ONE PIECE","HUNTER×HUNTER"].forEach(t=>S.mine.push(mk(t)));try{localStorage.setItem(K+".seeded","1")}catch(e){}}
+function mk(t){const p=P.find(x=>x[0]===t);return{id:Date.now()+Math.random(),title:t,tags:p?p[1].split(" "):[],wd:"",vol:"",read:false}}
+function save(){try{localStorage.setItem(K,JSON.stringify(S))}catch(e){}}
+const esc=s=>String(s).replace(/[&<>"']/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]));
+const q=t=>encodeURIComponent(t);
+function links(t){return `<div class="row">`+[["Kindle",`https://www.amazon.co.jp/s?k=${q(t)}&i=digital-text`],["ebookjapan",`https://ebookjapan.yahoo.co.jp/search/?keyword=${q(t)}`],["楽天",`https://books.rakuten.co.jp/search?sitem=${q(t)}&g=001`],["無料で読む",`https://www.google.com/search?q=${q(t+" 公式 無料 試し読み")}`],["電子図書館",`https://www.google.com/search?q=${q(t+" 電子図書館")}`]].map(([n,u])=>`<a class="b lk" href="${u}" target="_blank" rel="noopener">${n}</a>`).join("")+`</div>`}
+const own=t=>S.mine.some(m=>m.title===t);
+function rec(){const mt=new Set(S.mine.flatMap(m=>m.tags));return P.filter(p=>!own(p[0])&&!S.wish.includes(p[0])||S.wish.includes(p[0])&&!own(p[0])).map((p,i)=>{const sh=p[1].split(" ").filter(t=>mt.has(t));return{t:p[0],tags:p[1],sh,i}}).sort((a,b)=>b.sh.length-a.sh.length||a.i-b.i)}
+function pcard(r,showWhy){const w=S.wish.includes(r.t);return `<div class="c"><div class="t">${esc(r.t)}</div><div class="tg">${esc(r.tags.split?r.tags.split(" ").join("・"):r.tags)}</div>${showWhy&&r.sh.length?`<div class="why">あなたの好み: ${esc(r.sh.join("・"))}</div>`:""}<div class="row"><button class="b p" data-a="add" data-t="${esc(r.t)}">＋マイ作品に追加</button><button class="b ${w?"on":""}" data-a="wish" data-t="${esc(r.t)}">${w?"★気になる":"☆気になる"}</button></div>${links(r.t)}</div>`}
+function mcard(m){return `<div class="c"><div class="t">${esc(m.title)}</div><div class="tg">${esc(m.tags.join("・"))}</div><div class="row"><select data-a="wd" data-id="${m.id}" aria-label="更新曜日"><option value="">更新曜日</option>${WD.map((d,i)=>`<option value="${i}" ${String(m.wd)===String(i)?"selected":""}>${d}曜</option>`).join("")}</select><input type="number" min="0" placeholder="最新巻" value="${esc(m.vol)}" data-a="vol" data-id="${m.id}" aria-label="最新巻"><button class="b ${m.read?"on":"p"}" data-a="read" data-id="${m.id}">${m.read?"読了":"読んだ"}</button><button class="b" data-a="del" data-id="${m.id}">削除</button></div>${links(m.title)}</div>`}
+function view(){
+const td=new Date().getDay();
+document.getElementById("week").innerHTML=WD.map((d,i)=>{const n=S.mine.filter(m=>String(m.wd)===String(i)).length;return `<div class="day ${i===td?"today":""}">${d}<b>${n||"・"}</b></div>`}).join("");
+document.querySelectorAll("nav button").forEach(b=>b.classList.toggle("on",b.dataset.tab===tab));
+let h="";
+if(tab==="home"){
+const tdl=S.mine.filter(m=>String(m.wd)===String(td)&&!m.read),un=S.mine.filter(m=>!m.read&&!tdl.includes(m));
+h+=`<h2>今日更新(${WD[td]}曜)</h2>`+(tdl.length?tdl.map(mcard).join(""):`<div class="em">今日更新の未読はありません。マイ作品で更新曜日を設定すると、ここに出ます。</div>`);
+h+=`<h2>未読の作品</h2>`+(un.length?un.map(mcard).join(""):`<div class="em">未読はありません。</div>`);
+const r=rec();h+=`<h2>好みに近いおすすめ</h2>`+r.slice(0,4).map(x=>pcard(x,true)).join("");
+if(S.wish.length)h+=`<h2>気になるリスト</h2>`+rec().filter(x=>S.wish.includes(x.t)).map(x=>pcard(x,false)).join("");
 }
-const syncTxt=()=>st==="ok"?"☁ 同期済み":st==="sync"?"☁ 同期中…":st==="err"?"同期エラー（この端末には保存済み）":"合言葉が未設定（この端末のみ保存）";
-function badge(){document.querySelectorAll(".sync").forEach(e=>e.textContent=syncTxt())}
-const $=s=>document.querySelector(s);
-const esc=s=>String(s??"").replace(/[&<>"]/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c]));
-const app=id=>APPS.find(a=>a[0]===id)||APPS[8];
-const ymd=d=>d.getFullYear()+"-"+(d.getMonth()+1)+"-"+d.getDate();
-const today=()=>new Date();
-const readUrl=w=>w.url||app(w.app)[2];
-const dayLabel=w=>w.days.length?w.days.slice().sort().map(d=>DN[d]).join("・")+"曜":"不定期";
-function until(w){const n=today().getDay();let m=9;w.days.forEach(d=>{m=Math.min(m,(d-n+7)%7)});return m}
-function card(w,extra){
-  const a=app(w.app),done=w.read===ymd(today());
-  return `<div class="card ${done?"done":""}"><div class="t" data-a="open" data-id="${w.id}"><b>${esc(w.title)}</b><small>${esc(a[1])}${extra?" ／ "+extra:""}</small></div>
-  <a class="btn p" href="${esc(readUrl(w))||"#"}" target="_blank" rel="noopener" data-a="read" data-id="${w.id}">${done?"読了":"読む"}</a></div>`;
+if(tab==="mine"){
+h+=`<div class="row"><input id="nt" placeholder="作品名を入力" style="flex:1"><button class="b p" data-a="addc">追加</button><button class="b" data-a="reset">全て未読に戻す</button></div>`;
+h+=S.mine.length?S.mine.map(mcard).join(""):`<div class="em">作品がありません。上の入力か「発見」から追加してください。</div>`;
 }
-function vToday(){
-  const d=today(),ws=S.works,td=ws.filter(w=>w.days.includes(d.getDay())),rest=ws.filter(w=>!w.days.includes(d.getDay())).sort((a,b)=>until(a)-until(b));
-  let h=`<div class="top"><h1>${d.getMonth()+1}月${d.getDate()}日（${DN[d.getDay()]}）</h1><p>今日更新 ${td.length}作品 ／ <span class="sync">${syncTxt()}</span></p></div>`;
-  if(!ws.length)return h+`<div class="empty">まだ作品がありません。<br>右下の＋から、読んでいる漫画を登録しましょう。</div>`;
-  h+=td.length?td.map(w=>card(w)).join(""):`<div class="empty">今日更新の作品はありません</div>`;
-  if(rest.length)h+=`<h2>これから更新</h2>`+rest.map(w=>card(w,w.days.length?(until(w)===1?"明日":until(w)+"日後")+"（"+dayLabel(w)+"）":"不定期")).join("");
-  return h;
+if(tab==="find"){
+const tags=[...new Set(P.flatMap(p=>p[1].split(" ")))];
+h+=`<div class="row"><input id="sq" placeholder="作品名で探す(例: ワンピース)" value="${esc(sw)}" style="flex:1"><button class="b p" data-a="sq">探す</button></div>`;
+if(sw){h+=`<div class="c"><div class="t">${esc(sw)}</div>${links(sw)}<div class="row"><button class="b p" data-a="addsw">＋マイ作品に追加</button></div></div>`}
+h+=`<div class="chips"><button class="b ${flt?"":"on"}" data-a="flt" data-t="">全て</button>${tags.map(t=>`<button class="b ${flt===t?"on":""}" data-a="flt" data-t="${t}">${t}</button>`).join("")}</div>`;
+const l=rec().filter(x=>!flt||x.tags.split(" ").includes(flt));
+h+=l.length?l.map(x=>pcard(x,true)).join(""):`<div class="em">該当する作品はありません。</div>`;
 }
-function vList(){
-  const ws=S.works.slice().sort((a,b)=>app(a.app)[1].localeCompare(app(b.app)[1],"ja"));
-  let h=`<div class="top"><h1>マイ作品</h1><p>${ws.length}作品</p></div>`;
-  if(!ws.length)return h+`<div class="empty">右下の＋から作品を追加できます</div>`;
-  return h+ws.map(w=>card(w,dayLabel(w))).join("");
+document.getElementById("v").innerHTML=h;
 }
-function vSet(){
-  return `<div class="top"><h1>設定</h1><p>購入ボタンに出す書店を選べます ／ <span class="sync">${syncTxt()}</span></p></div>
-  ${SHOPS.map(s=>`<label class="chk"><input type="checkbox" data-a="shop" data-id="${s[0]}" ${S.shops.includes(s[0])?"checked":""}>${s[1]}</label>`).join("")}
-  <h2>同期の合言葉</h2>
-  <p class="note">iPhoneとパソコンで同じ合言葉を入力すると、作品リストが同期されます。他の人には教えないでください。</p>
-  <input type="text" id="code" value="${esc(code)}" autocapitalize="off" autocomplete="off" spellcheck="false" placeholder="半角英数字8文字以上">
-  <div class="row" style="margin-top:10px"><button class="btn" data-a="gen">ランダムに作る</button><button class="btn p" data-a="setcode">決定</button></div>
-  <p class="note" id="cmsg"></p>
-  <h2>バックアップ</h2>
-  <p class="note">合言葉を同じにすれば、iPhoneとパソコンで自動的に同期されます。念のためのバックアップとして、下の書き出しも使えます。</p>
-  <button class="btn w" data-a="export">データを書き出す</button>
-  <textarea id="bk" placeholder="書き出した文字列をここに貼って読み込み"></textarea>
-  <button class="btn w" style="margin-top:10px" data-a="import">貼り付けたデータを読み込む</button><p class="note" id="msg"></p>`;
-}
-function render(){
-  $("#main").innerHTML=tab==="today"?vToday():tab==="list"?vList():vSet();
-  document.querySelectorAll("nav button").forEach(b=>b.classList.toggle("on",b.dataset.id===tab));
-  $("#fab").style.display=tab==="set"?"none":"";
-}
-function sheet(h){$("#sheetIn").innerHTML=h;$("#sheet").classList.add("open")}
-function closeSheet(){$("#sheet").classList.remove("open")}
-function detail(id){
-  const w=S.works.find(x=>x.id===id);if(!w)return;
-  const sh=SHOPS.filter(s=>S.shops.includes(s[0]));
-  sheet(`<h3>${esc(w.title)}</h3><p class="note">${esc(app(w.app)[1])} ／ ${dayLabel(w)}${w.note?" ／ "+esc(w.note):""}</p>
-  <a class="btn p w" href="${esc(readUrl(w))||"#"}" target="_blank" rel="noopener" data-a="read" data-id="${w.id}">本元で読む</a>
-  <h2>単行本を買う</h2>
-  ${sh.length?sh.map(s=>`<a class="btn y w" href="${s[2]+encodeURIComponent(w.title)}" target="_blank" rel="noopener">${s[1]}で探す</a>`).join(""):`<p class="note">設定で書店を選んでください</p>`}
-  <div class="row" style="margin-top:8px"><button class="btn" data-a="edit" data-id="${w.id}">編集</button><button class="btn d" data-a="del" data-id="${w.id}">削除</button></div>
-  <button class="btn w" style="margin-top:10px" data-a="close">閉じる</button>`);
-}
-function pickHtml(){
-  const have=S.works.map(w=>w.title),l=CATALOG.map((c,i)=>[c,i]).filter(([c])=>!have.includes(c[0]));
-  if(!l.length)return "";
-  return `<h2>作品を選んで追加</h2>${l.map(([c,i])=>`<button class="btn w" style="justify-content:space-between;text-align:left" data-a="pick" data-id="${i}"><span>${esc(c[0])}</span><span class="note" style="margin:0">${esc(app(c[1])[1])}・${c[2].map(d=>DN[d]).join("・")}曜</span></button>`).join("")}<h2>リストにない作品は手入力</h2>`;
-}
-function form(id){
-  const w=S.works.find(x=>x.id===id)||{title:"",app:"jp",days:[],url:"",note:""};
-  sheet(`<h3>${id?"作品を編集":"作品を追加"}</h3>${id?"":pickHtml()}
-  <label>タイトル</label><input type="text" id="f_t" value="${esc(w.title)}" placeholder="例：作品名">
-  <label>掲載アプリ</label><select id="f_a">${APPS.map(a=>`<option value="${a[0]}" ${a[0]===w.app?"selected":""}>${a[1]}</option>`).join("")}</select>
-  <label>更新曜日（複数選べます）</label><div class="chips">${[...DN].map((c,i)=>`<button type="button" class="chip ${w.days.includes(i)?"on":""}" data-a="day">${c}</button>`).join("")}</div>
-  <label>作品ページのURL（任意）</label><input type="url" id="f_u" value="${esc(w.url)}" placeholder="https://">
-  <p class="note">空欄なら、掲載アプリのトップページを開きます。</p>
-  <label>メモ（任意）</label><input type="text" id="f_n" value="${esc(w.note)}">
-  <div class="row" style="margin-top:18px"><button class="btn" data-a="close">キャンセル</button><button class="btn p" data-a="save" data-id="${id||""}">保存</button></div>`);
-}
-const act={
-  tab(id){tab=id;render();scrollTo(0,0)},
-  setcode(){const v=$("#code").value.trim();if(!/^[A-Za-z0-9_-]{8,}$/.test(v)){$("#cmsg").textContent="半角の英数字（- _ 可）で8文字以上にしてください。";return}code=v;try{localStorage.setItem("mangahub:code",v)}catch(e){}$("#cmsg").textContent=cfgOk()?"設定しました。":"合言葉は保存しましたが、Firebaseの設定がまだです。";connect()},
-  gen(){const a="abcdefghijkmnpqrstuvwxyz23456789";let t="";crypto.getRandomValues(new Uint8Array(16)).forEach(x=>t+=a[x%a.length]);$("#code").value=t},
-  new(){form("")},
-  pick(i){const c=CATALOG[i];if(!c)return;S.works.push({id:"w"+Date.now(),title:c[0],app:c[1],days:c[2].slice(),url:"",note:c[3]||"",u:Date.now()});save();closeSheet();tab="list";render()},
-  open(id){detail(id)},
-  edit(id){form(id)},
-  close(){closeSheet()},
-  day(_,el){el.classList.toggle("on")},
-  save(id){
-    const t=$("#f_t").value.trim();if(!t){$("#f_t").focus();return}
-    const days=[...document.querySelectorAll(".chip")].map((c,i)=>c.classList.contains("on")?i:-1).filter(i=>i>=0);
-    const o={title:t,app:$("#f_a").value,days,url:$("#f_u").value.trim(),note:$("#f_n").value.trim(),u:Date.now()};
-    if(id){Object.assign(S.works.find(x=>x.id===id),o)}else{S.works.push(Object.assign({id:"w"+Date.now()},o))}
-    save();closeSheet();render();
-  },
-  del(id,el){if(el.dataset.arm!=="1"){el.dataset.arm="1";el.textContent="もう一度押すと削除";return}S.works=S.works.filter(x=>x.id!==id);S.del[id]=Date.now();save();closeSheet();render()},
-  read(id){const w=S.works.find(x=>x.id===id);if(w){w.read=ymd(today());w.u=Date.now();save();setTimeout(()=>{closeSheet();render()},400)}},
-  shop(id,el){S.shops=el.checked?[...new Set([...S.shops,id])]:S.shops.filter(x=>x!==id);S.sU=Date.now();save()},
-  export(){$("#bk").value=JSON.stringify(S);$("#bk").select()},
-  import(){try{const d=JSON.parse($("#bk").value);if(!Array.isArray(d.works))throw 0;S=Object.assign({works:[],shops:["kindle","bw"],del:{},sU:Date.now()},d);S.del=S.del||{};S.works.forEach(w=>{if(!w.u)w.u=Date.now()});save();tab="list";render()}catch(e){$("#msg").textContent="読み込めませんでした。書き出した文字列をそのまま貼ってください。"}}
-};
 document.addEventListener("click",e=>{
-  if(e.target.id==="sheet"){closeSheet();return}
-  const t=e.target.closest("[data-a]");if(!t)return;
-  const f=act[t.dataset.a];if(f)f(t.dataset.id,t);
+const t=e.target.closest("[data-tab]");if(t){tab=t.dataset.tab;view();return}
+const b=e.target.closest("[data-a]");if(!b||b.tagName==="SELECT"||b.tagName==="INPUT")return;
+const a=b.dataset.a,id=b.dataset.id,ti=b.dataset.t,m=S.mine.find(x=>String(x.id)===id);
+if(a==="add"&&!own(ti))S.mine.push(mk(ti));
+if(a==="wish")S.wish=S.wish.includes(ti)?S.wish.filter(x=>x!==ti):[...S.wish,ti];
+if(a==="read"&&m)m.read=!m.read;
+if(a==="del"&&m)S.mine=S.mine.filter(x=>x!==m);
+if(a==="reset")S.mine.forEach(x=>x.read=false);
+if(a==="addc"){const v=document.getElementById("nt").value.trim();if(v&&!own(v))S.mine.push(mk(v))}
+if(a==="sq")sw=document.getElementById("sq").value.trim();
+if(a==="addsw"&&sw&&!own(sw)){S.mine.push(mk(sw));sw=""}
+if(a==="flt")flt=ti;
+save();view();
 });
-let code="",fdb=null;try{code=localStorage.getItem("mangahub:code")||""}catch(e){}
-const cfgOk=()=>typeof firebase!=="undefined"&&!/YOUR/.test(FIREBASE_CONFIG.databaseURL);
-function connect(){
-  if(ref){try{ref.off()}catch(e){}ref=null}
-  if(!code||!cfgOk()){st="local";badge();return}
-  try{
-    if(!fdb){firebase.initializeApp(FIREBASE_CONFIG);fdb=firebase.database()}
-    ref=fdb.ref("sync/"+code);st="sync";badge();
-    ref.on("value",s=>{
-      const r=s.val();
-      if(r){
-        if(merge(r)){lsSave();if(tab!=="set")render()}
-        if(canon(pack())!==canon(r))push();else{st="ok";badge()}
-      }else push();
-    },()=>{st="err";badge()});
-  }catch(e){st="err";badge()}
-}
-if(!code)tab="set";
-render();connect();
+document.addEventListener("change",e=>{
+const el=e.target,m=S.mine.find(x=>String(x.id)===el.dataset.id);if(!m)return;
+if(el.dataset.a==="wd")m.wd=el.value;
+if(el.dataset.a==="vol")m.vol=el.value;
+save();view();
+});
+document.addEventListener("keydown",e=>{if(e.key==="Enter"&&e.target.id==="sq")document.querySelector('[data-a="sq"]').click();if(e.key==="Enter"&&e.target.id==="nt")document.querySelector('[data-a="addc"]').click()});
+view();
+</script>
+<script>
+let CFG={},ANI=[],SIM=null,TG={};
+try{CFG=JSON.parse(localStorage.getItem(K+".cfg")||"{}")}catch(e){}
+const _view=view,_save=save,_mk=mk;
+const dbu=()=>`${CFG.db.replace(/\/$/,"")}/mangahub/${encodeURIComponent(CFG.code)}.json`;
+async function push(){if(!CFG.db||!CFG.code)return;try{await fetch(dbu(),{method:"PUT",body:JSON.stringify(S)})}catch(e){}}
+async function pull(){if(!CFG.db||!CFG.code)return;try{const r=await(await fetch(dbu())).json();if(r&&r.mine&&(r.ts||0)>(S.ts||0)){S=r;_save();view()}}catch(e){}}
+save=function(){S.ts=Date.now();_save();push()};
+mk=function(t){const m=_mk(t);if(!m.tags.length&&TG[t])m.tags=TG[t];return m};
+async function gql(query,variables){const r=await fetch("https://graphql.anilist.co",{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({query,variables})});return(await r.json()).data}
+const nm=n=>n.title.native||n.title.romaji;
+function items(l){return l.filter(x=>!own(x.t)).map(x=>pcard({t:x.t,tags:x.tags,sh:[]},false)).join("")}
+view=function(){
+_view();const v=document.getElementById("v");
+if(tab==="set")v.innerHTML=`<h2>端末間の同期(Firebase)</h2><div class="c"><div class="tg">Realtime DatabaseのURLと、自分だけが知る同期コードを入れると、別端末と同じ内容になります。</div><div class="row"><input id="cd" placeholder="https://xxxx.firebaseio.com" value="${esc(CFG.db||"")}" style="flex:1"></div><div class="row"><input id="cc" placeholder="同期コード(長めの文字列)" value="${esc(CFG.code||"")}" style="flex:1"></div><div class="row"><button class="b p" data-a="cfg">保存して同期</button></div></div>`;
+if(tab==="find")v.insertAdjacentHTML("afterbegin",`<h2>AniListの人気作</h2><div class="row"><button class="b p" data-a="ani">人気ランキングを取得</button></div>`+(ANI.length?items(ANI):""));
+if(SIM&&(tab==="mine"||tab==="home"))v.insertAdjacentHTML("afterbegin",`<h2>「${esc(SIM.f)}」に似た作品</h2>`+(SIM.l.length?items(SIM.l):`<div class="em">見つかりませんでした。</div>`));
+if(tab==="mine"||tab==="home")v.querySelectorAll('[data-a="del"]').forEach(b=>{const t=b.closest(".c").querySelector(".t").textContent;b.insertAdjacentHTML("beforebegin",`<button class="b" data-a="sim" data-t="${esc(t)}">似た作品</button>`)});
+};
+document.querySelector("nav").insertAdjacentHTML("beforeend",'<button data-tab="set">設定</button>');
+document.addEventListener("click",async e=>{
+const b=e.target.closest("[data-a]");if(!b)return;const a=b.dataset.a;
+try{
+if(a==="ani"){b.textContent="取得中…";const d=await gql(`query{Page(perPage:14){media(type:MANGA,countryOfOrigin:"JP",sort:POPULARITY_DESC,isAdult:false){title{native romaji}genres}}}`);ANI=d.Page.media.map(n=>{TG[nm(n)]=n.genres;return{t:nm(n),tags:n.genres.join(" ")}});view()}
+if(a==="sim"){const d=await gql(`query($s:String){Media(search:$s,type:MANGA){recommendations(sort:RATING_DESC,perPage:10){nodes{mediaRecommendation{title{native romaji}genres isAdult}}}}}`,{s:b.dataset.t});const l=(d.Media?.recommendations?.nodes||[]).map(n=>n.mediaRecommendation).filter(n=>n&&!n.isAdult).map(n=>{TG[nm(n)]=n.genres;return{t:nm(n),tags:n.genres.join(" ")}});SIM={f:b.dataset.t,l};view()}
+if(a==="cfg"){CFG={db:document.getElementById("cd").value.trim(),code:document.getElementById("cc").value.trim()};localStorage.setItem(K+".cfg",JSON.stringify(CFG));await pull();await push();view()}
+}catch(err){}
+});
+pull();
 </script>
 </body>
 </html>
